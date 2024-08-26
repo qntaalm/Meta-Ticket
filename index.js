@@ -43,6 +43,7 @@ process.on("rejectionHandled", err => {
   return console.log(err)
 });
 
+let line = 'https://cdn.discordapp.com/attachments/1274091766315745343/1277755566768259113/D6C4FCB6-7F67-4410-BD88-DE04D7B0CCAF.png?ex=66ce521a&is=66cd009a&hm=2320c890fd1bafbb966f85b59b0f86ca9d935d67e84030e10d42e5a5b4f402fa&'
 let prefix = '$'
 const db = require('pro.db')
 
