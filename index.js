@@ -531,8 +531,9 @@ if (!message.member.permissions.has('ADMINISTRATOR')) return
     try {
       const member = await message.guild.members.fetch(memberId);
  message.channel.permissionOverwrites.edit(member.id, {
-        SEND_MESSAGES: true
-      });
+        SEND_MESSAGES: true,
+        VIEW_CHANNEL: true
+ });
 
       message.channel.send(`Done add <@${member.id}> to ticket`);
     } catch (error) {
