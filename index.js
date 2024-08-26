@@ -24,7 +24,6 @@ console.log(`${client.user.tag} is Online 🟢`);
     let status =
         [
         `${client.user.username}`,
-        `${message.guild.name}`,
         `My Prefix ${prefix} | Ticket Bot`,
         ]
     setInterval(()=>{
