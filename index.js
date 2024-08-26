@@ -516,6 +516,31 @@ async function updatePermissions(channel, member) {
     await channel.permissionOverwrites.set(permissions);
 }
 
+client.on('messageCreate', async message => {
+  if (message.author.bot || !message.guild) return;
+
+  if (message.content.startsWith(`${prefix}transfer`)) {
+if (!message.member.permissions.has('ADMINISTRATOR')) return
+    const args = message.content.split(' ');
+
+    if (!args[1]) {
+      return message.reply('Please mention a user or provide their user ID.');
+    }
+
+    let memberId = args[1].replace(/[<@!&>]/g, ''); 
+    try {
+      const member = await message.guild.members.fetch(memberId);
+ message.channel.permissionOverwrites.edit(member.id, {
+        SEND_MESSAGES: true
+      });
+
+      message.channel.send(`Done add <@${member.id}> to ticket`);
+    } catch (error) {
+      console.error(error);
+      message.reply('Could not find the member. Please make sure you mentioned the user or provided the correct user ID.');
+    }
+  }
+});
 
 
 
