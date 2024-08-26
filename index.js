@@ -364,7 +364,7 @@ await channel.send({ content: `<@${interaction.user.id}>`,embeds: [embed], compo
 });
 
 client.on('interactionCreate', async interaction => {
-if (interaction.isButton() && interaction.customId === 'close') && interaction.member.roles.cache.has(Support))  {
+if (interaction.isButton() && interaction.customId === 'close' && interaction.member.roles.cache.has(Support))  {
 await interaction.reply({ content: 'سيتم اغلاق التذكرة بعد 5 ثواني', ephemeral: true });
 
 setTimeout(async () => {
