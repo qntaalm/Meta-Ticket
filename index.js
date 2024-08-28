@@ -335,7 +335,8 @@ type: 'GUILD_TEXT',
 parent: selectedSection.openCategoryId,
 permissionOverwrites: [
 { id: interaction.guild.roles.everyone, deny: ['VIEW_CHANNEL'] },
-{ id: interaction.user.id, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] }
+{ id: interaction.user.id, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] },
+{ id: Edara, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES']}
 ]
 });
 db.set(`Ticket_already_${interaction.user.id}`, channel.id);
@@ -358,7 +359,7 @@ new MessageButton()
 .setStyle('DANGER')
 );
 
-await channel.send({ content: `<@${interaction.user.id}>\n||<@&${Edara}>||`,embeds: [embed], components: [closeButton] });
+await channel.send({ content: `<@${interaction.user.id}>\n||<@&1267822723502047346>||`,embeds: [embed], components: [closeButton] });
 }
 }
 });
@@ -431,12 +432,21 @@ await logChannel.send(`تعذر حذف التذكرة بواسطة <@${interacti
 //===============================
 
 const ClaimSup = '1267822723502047346'; //ايدي الرتبة يلي تقدر تستلم
+const ClaimSup1 = '1267822723502047346'; //ايدي الرتبة يلي تقدر تستلم
+const ClaimSup2 = '1267822723502047346'; //ايدي الرتبة يلي تقدر تستلم
+const ClaimSup3 = '1267822723502047346'; //ايدي الرتبة يلي تقدر تستلم
+const ClaimSup4 = '1267822723502047346'; //ايدي الرتبة يلي تقدر تستلم
+const dfa3 = '1271857091946086460'; // استبدلها بمعرف الكاتجوري المحددة
+const amnMt = '1271856991689510953'; // استبدلها بمعرف الكاتجوري المحددة
+const amn3am = '1271857039148056657'; // استبدلها بمعرف الكاتجوري المحددة
+const krag = '1271856854959526030'; // استبدلها بمعرف الكاتجوري المحددة
+const SkipCate = ['1271856854959526030', '1271857039148056657', '1271857091946086460', '1271856991689510953']
 //const Admin = '1255590017494155415'; //ايدي رتبة الادمن يلي ما يقدروا يكتبوا بعد الاستلام 
 const HighAdmin = ['1197106356595994634', '1197106965474709504', '1197960335303393280']; //ايدي رتبة الادارة العليا تقدر تكتب
 const LOG_CHANNEL_ID = '1267845245505114334'; //روم اللوق
 
 client.on('channelCreate', async (channel) => {
-    if (channel.type === 'GUILD_TEXT' && channel.name.startsWith('ticket-')) {
+    if (channel.type === 'GUILD_TEXT' && channel.name.startsWith('ticket-') && channel.parentId !== SkipCate) {
         setTimeout(async () => {
             const embed = new MessageEmbed()
                 .setDescription('اضغط على الزر لاستلام التذكرة')
@@ -517,33 +527,17 @@ async function updatePermissions(channel, member) {
     await channel.permissionOverwrites.set(permissions);
 }
 
-client.on('messageCreate', async message => {
-  if (message.author.bot || !message.guild) return;
+//الدفاع المدني
 
-  if (message.content.startsWith(`${prefix}transfer`)) {
-if (!message.member.permissions.has('ADMINISTRATOR')) return
-    const args = message.content.split(' ');
+client.on('channelCreate', async (channel) => {
+if (channel.type === 'GUILD_TEXT' && channel.name.startsWith('ticket-') && channel.parentId === dfa3) {
+setTimeout(async () => {
+const embed = new MessageEmbed()
+.setDescription('اضغط على الزر لاستلام التذكرة')
+.setColor('#00FF00');
 
-    if (!args[1]) {
-      return message.reply('Please mention a user or provide their user ID.');
-    }
-
-    let memberId = args[1].replace(/[<@!&>]/g, ''); 
-    try {
-      const member = await message.guild.members.fetch(memberId);
- message.channel.permissionOverwrites.edit(member.id, {
-        SEND_MESSAGES: true,
-        VIEW_CHANNEL: true
- });
-
-      message.channel.send(`Done add <@${member.id}> to ticket`);
-    } catch (error) {
-      console.error(error);
-      message.reply('Could not find the member. Please make sure you mentioned the user or provided the correct user ID.');
-    }
-  }
-});
-
-
-
-client.login(process.env.token)
+const row = new MessageActionRow()
+.addComponents(
+new MessageButton()
+.setCustomId('claim')
+.setLabel('استلام التذكرة'
