@@ -358,7 +358,7 @@ new MessageButton()
 .setStyle('DANGER')
 );
 
-await channel.send({ content: `<@${interaction.user.id}>\n||<@&1267822723502047346>||`,embeds: [embed], components: [closeButton] });
+await channel.send({ content: `<@${interaction.user.id}>\n||<@&${Edara}>||`,embeds: [embed], components: [closeButton] });
 }
 }
 });
@@ -497,7 +497,7 @@ client.on('interactionCreate', async (interaction) => {
 async function updatePermissions(channel, member) {
     const permissions = [
         { id: channel.guild.roles.everyone, deny: ['VIEW_CHANNEL', 'SEND_MESSAGES'] },
-        { id: Edara, allow ['VIEW_CHANNEL'],
+        { id: Edara, allow: ['VIEW_CHANNEL'],
         { id: member.id, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] },
       //  { id: Admin, deny: ['SEND_MESSAGES'] },
         { id: ClaimSup, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] }
