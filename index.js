@@ -47,6 +47,24 @@ let line = 'https://cdn.discordapp.com/attachments/1274091766315745343/127775556
 let prefix = '$'
 const db = require('pro.db')
 
+//=========={Claim Tickets}==========
+
+const ClaimSup = '1267822723502047346'; //ايدي الرتبة يلي تقدر تستلم
+const ClaimSup1 = '1267814387133972633'; //ايدي الرتبة يلي تقدر تستلم دفاع مدني
+const ClaimSup2 = '1267813912540352572'; //ايدي الرتبة يلي تقدر تستلم امن المنشأت
+const ClaimSup3 = '1267814221849301083'; //ايدي الرتبة يلي تقدر تستلم الامن العام
+const ClaimSup4 = '1267814603405000784'; //ايدي الرتبة يلي تقدر تستلم كراج الميكانيكي
+const dfa3 = '1271857091946086460'; // استبدلها بمعرف الكاتجوري المحددة للدفاع المدني
+const amnMt = '1271856991689510953'; // استبدلها بمعرف الكاتجوري المحددة امن المنشأت
+const amn3am = '1271857039148056657'; // استبدلها بمعرف الكاتجوري المحددة الامن العام
+const krag = '1271856854959526030'; // استبدلها بمعرف الكاتجوري المحددة كراج الميكانيكي
+const SkipCate = ['1271856854959526030', '1271857039148056657', '1271857091946086460', '1271856991689510953']
+//const Admin = '1255590017494155415'; //ايدي رتبة الادمن يلي ما يقدروا يكتبوا بعد الاستلام 
+const HighAdmin = ['1197106356595994634', '1197106965474709504', '1197960335303393280']; //ايدي رتبة الادارة العليا تقدر تكتب
+const LOG_CHANNEL_ID = '1267845245505114334'; //روم اللوق
+
+//=========={Tickets}==========
+
 const Edara = '1267822723502047346'
 const Support = '1267822723502047346'
 const LogId = '1267845245505114334'
@@ -431,20 +449,6 @@ await logChannel.send(`تعذر حذف التذكرة بواسطة <@${interacti
 
 //===============================
 
-const ClaimSup = '1267822723502047346'; //ايدي الرتبة يلي تقدر تستلم
-const ClaimSup1 = '1267822723502047346'; //ايدي الرتبة يلي تقدر تستلم
-const ClaimSup2 = '1267822723502047346'; //ايدي الرتبة يلي تقدر تستلم
-const ClaimSup3 = '1267822723502047346'; //ايدي الرتبة يلي تقدر تستلم
-const ClaimSup4 = '1267822723502047346'; //ايدي الرتبة يلي تقدر تستلم
-const dfa3 = '1271857091946086460'; // استبدلها بمعرف الكاتجوري المحددة
-const amnMt = '1271856991689510953'; // استبدلها بمعرف الكاتجوري المحددة
-const amn3am = '1271857039148056657'; // استبدلها بمعرف الكاتجوري المحددة
-const krag = '1271856854959526030'; // استبدلها بمعرف الكاتجوري المحددة
-const SkipCate = ['1271856854959526030', '1271857039148056657', '1271857091946086460', '1271856991689510953']
-//const Admin = '1255590017494155415'; //ايدي رتبة الادمن يلي ما يقدروا يكتبوا بعد الاستلام 
-const HighAdmin = ['1197106356595994634', '1197106965474709504', '1197960335303393280']; //ايدي رتبة الادارة العليا تقدر تكتب
-const LOG_CHANNEL_ID = '1267845245505114334'; //روم اللوق
-
 client.on('channelCreate', async (channel) => {
     if (channel.type === 'GUILD_TEXT' && channel.name.startsWith('ticket-') && channel.parentId !== SkipCate) {
         setTimeout(async () => {
@@ -540,4 +544,331 @@ const row = new MessageActionRow()
 .addComponents(
 new MessageButton()
 .setCustomId('claim')
-.setLabel('استلام التذكرة'
+.setLabel('استلام التذكرة')
+.setStyle('PRIMARY')
+);
+
+await channel.send({ embeds: [embed], components: [row] });
+
+const ticketOwnerName = channel.name.split('-')[1];
+const member = channel.guild.members.cache.find(m => m.user.username.toLowerCase() === ticketOwnerName.toLowerCase());
+
+if (member) {
+await channel.permissionOverwrites.create(member, { VIEW_CHANNEL: true, SEND_MESSAGES: true });
+}
+}, 3000);
+}
+});
+
+client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isButton()) return;
+
+    const { customId, channel, member, guild } = interaction;
+
+    if (customId === 'claim') {
+        if (!member.roles.cache.has(ClaimSup1)) {
+            return interaction.reply({ content: 'ليس لديك الصلاحية لاستلام التذكرة.', ephemeral: true });
+        }
+
+        await updatePermissions(channel, member);
+
+        await interaction.update({
+            embeds: [
+                new MessageEmbed()
+                    .setDescription(`تم استلام التذكرة بواسطة <@${member.id}>`)
+                    .setColor('#00FF00')
+            ],
+            components: []
+        });
+
+        const cclaim = new MessageEmbed()
+            .setDescription(`تم استلام التذكرة ${channel.name} بواسطة <@${member.id}>`)
+            .setColor('BLUE');
+
+        const logChannel = guild.channels.cache.get(LOG_CHANNEL_ID);
+        if (logChannel) {
+            await logChannel.send({ embeds: [cclaim] });
+        }
+    }
+});
+
+async function updatePermissions(channel, member) {
+    const permissions = [
+        { id: channel.guild.roles.everyone, deny: ['VIEW_CHANNEL', 'SEND_MESSAGES'] },
+        { id: Edara, allow: ['VIEW_CHANNEL'] },
+        { id: member.id, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] },
+      //  { id: Admin, deny: ['SEND_MESSAGES'] },
+        { id: ClaimSup1, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] }
+    ];
+
+    if (member.roles.cache.has(HighAdmin)) {
+        permissions.push({ id: member.id, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] });
+    }
+
+    const ticketOwnerName = channel.name.split('-')[1];
+    const owner = channel.guild.members.cache.find(m => m.user.username.toLowerCase() === ticketOwnerName.toLowerCase());
+
+    if (owner) {
+        permissions.push({ id: owner.id, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] });
+    }
+
+    await channel.permissionOverwrites.set(permissions);
+}
+
+//=======================================
+
+//امن المنشأت
+
+client.on('channelCreate', async (channel) => {
+if (channel.type === 'GUILD_TEXT' && channel.name.startsWith('ticket-') && channel.parentId === amnMt) {
+setTimeout(async () => {
+const embed = new MessageEmbed()
+.setDescription('اضغط على الزر لاستلام التذكرة')
+.setColor('#00FF00');
+
+const row = new MessageActionRow()
+.addComponents(
+new MessageButton()
+.setCustomId('claim')
+.setLabel('استلام التذكرة')
+.setStyle('PRIMARY')
+);
+
+await channel.send({ embeds: [embed], components: [row] });
+
+const ticketOwnerName = channel.name.split('-')[1];
+const member = channel.guild.members.cache.find(m => m.user.username.toLowerCase() === ticketOwnerName.toLowerCase());
+
+if (member) {
+await channel.permissionOverwrites.create(member, { VIEW_CHANNEL: true, SEND_MESSAGES: true });
+}
+}, 3000);
+}
+});
+
+
+client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isButton()) return;
+
+    const { customId, channel, member, guild } = interaction;
+
+    if (customId === 'claim') {
+        if (!member.roles.cache.has(ClaimSup2)) {
+            return interaction.reply({ content: 'ليس لديك الصلاحية لاستلام التذكرة.', ephemeral: true });
+        }
+
+        await updatePermissions(channel, member);
+
+        await interaction.update({
+            embeds: [
+                new MessageEmbed()
+                    .setDescription(`تم استلام التذكرة بواسطة <@${member.id}>`)
+                    .setColor('#00FF00')
+            ],
+            components: []
+        });
+
+        const cclaim = new MessageEmbed()
+            .setDescription(`تم استلام التذكرة ${channel.name} بواسطة <@${member.id}>`)
+            .setColor('BLUE');
+
+        const logChannel = guild.channels.cache.get(LOG_CHANNEL_ID);
+        if (logChannel) {
+            await logChannel.send({ embeds: [cclaim] });
+        }
+    }
+});
+
+async function updatePermissions(channel, member) {
+    const permissions = [
+        { id: channel.guild.roles.everyone, deny: ['VIEW_CHANNEL', 'SEND_MESSAGES'] },
+        { id: Edara, allow: ['VIEW_CHANNEL'] },
+        { id: member.id, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] },
+      //  { id: Admin, deny: ['SEND_MESSAGES'] },
+        { id: ClaimSup2, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] }
+    ];
+
+    if (member.roles.cache.has(HighAdmin)) {
+        permissions.push({ id: member.id, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] });
+    }
+
+    const ticketOwnerName = channel.name.split('-')[1];
+    const owner = channel.guild.members.cache.find(m => m.user.username.toLowerCase() === ticketOwnerName.toLowerCase());
+
+    if (owner) {
+        permissions.push({ id: owner.id, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] });
+    }
+
+    await channel.permissionOverwrites.set(permissions);
+}
+
+//=======================================
+
+client.on('channelCreate', async (channel) => {
+if (channel.type === 'GUILD_TEXT' && channel.name.startsWith('ticket-') && channel.parentId === amn3am) {
+setTimeout(async () => {
+const embed = new MessageEmbed()
+.setDescription('اضغط على الزر لاستلام التذكرة')
+.setColor('#00FF00');
+
+const row = new MessageActionRow()
+.addComponents(
+new MessageButton()
+.setCustomId('claim')
+.setLabel('استلام التذكرة')
+.setStyle('PRIMARY')
+);
+
+await channel.send({ embeds: [embed], components: [row] });
+
+const ticketOwnerName = channel.name.split('-')[1];
+const member = channel.guild.members.cache.find(m => m.user.username.toLowerCase() === ticketOwnerName.toLowerCase());
+
+if (member) {
+await channel.permissionOverwrites.create(member, { VIEW_CHANNEL: true, SEND_MESSAGES: true });
+}
+}, 3000);
+}
+});
+
+
+client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isButton()) return;
+
+    const { customId, channel, member, guild } = interaction;
+
+    if (customId === 'claim') {
+        if (!member.roles.cache.has(ClaimSup3)) {
+            return interaction.reply({ content: 'ليس لديك الصلاحية لاستلام التذكرة.', ephemeral: true });
+        }
+
+        await updatePermissions(channel, member);
+
+        await interaction.update({
+            embeds: [
+                new MessageEmbed()
+                    .setDescription(`تم استلام التذكرة بواسطة <@${member.id}>`)
+                    .setColor('#00FF00')
+            ],
+            components: []
+        });
+
+        const cclaim = new MessageEmbed()
+            .setDescription(`تم استلام التذكرة ${channel.name} بواسطة <@${member.id}>`)
+            .setColor('BLUE');
+
+        const logChannel = guild.channels.cache.get(LOG_CHANNEL_ID);
+        if (logChannel) {
+            await logChannel.send({ embeds: [cclaim] });
+        }
+    }
+});
+
+async function updatePermissions(channel, member) {
+    const permissions = [
+        { id: channel.guild.roles.everyone, deny: ['VIEW_CHANNEL', 'SEND_MESSAGES'] },
+        { id: Edara, allow: ['VIEW_CHANNEL'] },
+        { id: member.id, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] },
+      //  { id: Admin, deny: ['SEND_MESSAGES'] },
+        { id: ClaimSup3, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] }
+    ];
+
+    if (member.roles.cache.has(HighAdmin)) {
+        permissions.push({ id: member.id, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] });
+    }
+
+    const ticketOwnerName = channel.name.split('-')[1];
+    const owner = channel.guild.members.cache.find(m => m.user.username.toLowerCase() === ticketOwnerName.toLowerCase());
+
+    if (owner) {
+        permissions.push({ id: owner.id, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] });
+    }
+
+    await channel.permissionOverwrites.set(permissions);
+}
+
+//=======================================
+
+client.on('channelCreate', async (channel) => {
+if (channel.type === 'GUILD_TEXT' && channel.name.startsWith('ticket-') && channel.parentId === krag) {
+setTimeout(async () => {
+const embed = new MessageEmbed()
+.setDescription('اضغط على الزر لاستلام التذكرة')
+.setColor('#00FF00');
+
+const row = new MessageActionRow()
+.addComponents(
+new MessageButton()
+.setCustomId('claim')
+.setLabel('استلام التذكرة')
+.setStyle('PRIMARY')
+);
+
+await channel.send({ embeds: [embed], components: [row] });
+
+const ticketOwnerName = channel.name.split('-')[1];
+const member = channel.guild.members.cache.find(m => m.user.username.toLowerCase() === ticketOwnerName.toLowerCase());
+
+if (member) {
+await channel.permissionOverwrites.create(member, { VIEW_CHANNEL: true, SEND_MESSAGES: true });
+}
+}, 3000);
+}
+});
+
+client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isButton()) return;
+
+    const { customId, channel, member, guild } = interaction;
+
+    if (customId === 'claim') {
+        if (!member.roles.cache.has(ClaimSup4)) {
+            return interaction.reply({ content: 'ليس لديك الصلاحية لاستلام التذكرة.', ephemeral: true });
+        }
+
+        await updatePermissions(channel, member);
+
+        await interaction.update({
+            embeds: [
+                new MessageEmbed()
+                    .setDescription(`تم استلام التذكرة بواسطة <@${member.id}>`)
+                    .setColor('#00FF00')
+            ],
+            components: []
+        });
+
+        const cclaim = new MessageEmbed()
+            .setDescription(`تم استلام التذكرة ${channel.name} بواسطة <@${member.id}>`)
+            .setColor('BLUE');
+
+        const logChannel = guild.channels.cache.get(LOG_CHANNEL_ID);
+        if (logChannel) {
+            await logChannel.send({ embeds: [cclaim] });
+        }
+    }
+});
+
+async function updatePermissions(channel, member) {
+    const permissions = [
+        { id: channel.guild.roles.everyone, deny: ['VIEW_CHANNEL', 'SEND_MESSAGES'] },
+        { id: Edara, allow: ['VIEW_CHANNEL'] },
+        { id: member.id, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] },
+      //  { id: Admin, deny: ['SEND_MESSAGES'] },
+        { id: ClaimSup4, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] }
+    ];
+
+    if (member.roles.cache.has(HighAdmin)) {
+        permissions.push({ id: member.id, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] });
+    }
+
+    const ticketOwnerName = channel.name.split('-')[1];
+    const owner = channel.guild.members.cache.find(m => m.user.username.toLowerCase() === ticketOwnerName.toLowerCase());
+
+    if (owner) {
+        permissions.push({ id: owner.id, allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] });
+    }
+
+    await channel.permissionOverwrites.set(permissions);
+}
+
+//=======================================
